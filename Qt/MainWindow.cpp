@@ -96,7 +96,7 @@ void MainWindow::allCompoentInit()
     m_lb_valueMutationRate = new QLabel(QString::number(m_sliderMutationRate->value())+QString("%"));
     m_lb_valueRBFN_hiddenNeural_J = new QLabel(QString::number(m_sliderRBFN_hiddenNeural_J->value()));
 
-    m_btn_selectCaseData = new QPushButton(QString("載入Case資料"));
+    m_btn_selectCaseData = new QPushButton(QString("載入車軌設定"));
     m_btn_selectTrainData = new QPushButton(QString("載入訓練資料"));
     m_btn_restart = new QPushButton(QString("清除重來"));
     m_btn_restart->setEnabled(false);
@@ -120,6 +120,7 @@ void MainWindow::allCompoentInit()
     m_slider_experimentTimes->setRange(10, 100);
     m_slider_experimentTimes->setValue(20);
     m_lb_experimentTimes_value = new QLabel(QString::number(m_slider_experimentTimes->value()));
+    m_nExperimentTime = 20;
 
     m_btn_experiment = new QPushButton(QString("進行多次實驗"));
     m_btn_experiment->setEnabled(false);

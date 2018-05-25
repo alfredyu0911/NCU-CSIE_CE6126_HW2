@@ -64,9 +64,29 @@ float GA_ThreadRunner::getBsetAverageError()
     return m_GA->getBsetAverageError();
 }
 
-GA_ThreadMultipleRunner::GA_ThreadMultipleRunner(GA_ThreadRunner *parent) : GA_ThreadRunner(parent)
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
+
+GA_ThreadMultipleRunner::GA_ThreadMultipleRunner(QObject *parent) : QObject(parent)
 {
     initRunner();
+}
+
+void GA_ThreadMultipleRunner::initRunner()
+{
+    m_timer = new QTimer(this);
+    m_timer->setSingleShot(true);
+    m_timer->start(1000);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(doRun()));
+}
+
+float GA_ThreadMultipleRunner::getAngle(float disF, float disR, float disL, float x, float y)
+{
+    return m_GA->getAngleByInputToRBFN(disF, disR, disL, x, y);
+}
+
+void GA_ThreadMultipleRunner::input_GA_parameter(int numberOfHiddenNeural_J, vector<DataContent> vInputData)
+{
+    m_GA = new GeneticAlgorithm(numberOfHiddenNeural_J, vInputData);
 }
 
 void GA_ThreadMultipleRunner::update_GA_setting(int population, int crossoverRate, int mutationRate, int generation)
