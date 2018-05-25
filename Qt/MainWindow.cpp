@@ -580,7 +580,22 @@ void MainWindow::carMoveOnce(CarObject *car, float &lastWheelAngle)
     float R = geoObj.getDistance(m_data->m_carPosition, m_data->m_intersectPt_R);
     float L = geoObj.getDistance(m_data->m_carPosition, m_data->m_intersectPt_L);
 
-    lastWheelAngle = m_GA_runner->getAngle(F, R, L);
+    RBFN *network = new RBFN(m_GA_runner->getAllBestResults()[0]);
+
+    TrainDataType type = m_data->m_vTrainData[m_data->m_vTrainData.size()-1].dataType;
+    InputVector input(type);
+    int idx=0;
+    if ( type == TrainDataType_6D )
+    {
+        input.aryElement[idx++] = (m_data->m_carPosition.x-30.0) / 40.0;
+        input.aryElement[idx++] = (m_data->m_carPosition.y-30.0) / 40.0;
+    }
+    input.aryElement[idx++] = (F-40.0) / 40.0;
+    input.aryElement[idx++] = (R-40.0) / 40.0;
+    input.aryElement[idx++] = (L-40.0) / 40.0;
+
+    lastWheelAngle = network->getResultByInputVector(input) * 40.0;
+    delete network;
 
     if ( lastWheelAngle > 0 )
     {
