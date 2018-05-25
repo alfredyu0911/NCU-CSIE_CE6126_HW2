@@ -13,8 +13,6 @@ static inline bool sort_compare(Particule a, Particule b)
 
 GeneticAlgorithm::GeneticAlgorithm(int numberOfHiddenNeural_J, vector<DataContent> vInputData)
 {
-    srand(time(NULL));
-
     m_dataType = vInputData[0].dataType;
     m_RBFN_network = new RBFN(Particule());
 
@@ -48,7 +46,6 @@ bool GeneticAlgorithm::GA_strat()
     QTime qtime = QTime::currentTime();
     qtime.start();
 
-    srand(time(NULL));
     if ( normalizeInputData() == false )
     {
         m_nExecuteTimeInSecond = qtime.elapsed();

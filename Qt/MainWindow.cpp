@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent):QWidget(parent)
     m_timer = new QTimer(this);
     m_timer_experiment = new QTimer(this);
 
+    srand(time(NULL));
+
     m_bIsExperimentMode = false;
 
     allCompoentInit();
