@@ -40,6 +40,7 @@ protected:
     void consoleAddMsg(QString strMsg);
     bool isCarReachEndZone();
     void carMoveOnce(CarObject *car, float &lastWheelAngle);
+    bool experimentCheckIsCarSuccessfullyPassTrack(int i);
     void convertTime(const int microSecond, QString &strHour, QString &strMinute, QString &strSecond);
 
 private slots:
@@ -72,6 +73,7 @@ private:
     QThread *m_thread;
     QTimer *m_timer, *m_timer_experiment;
     bool m_bIsExperimentMode;
+    int m_nExperimentTime;
 
 // view object
 private:
@@ -86,6 +88,9 @@ private:
     QPushButton *m_btn_GA_start, *m_btn_experiment;
 
     QProgressBar *m_progressBar, *m_experimentProgressBar;
+
+    QLabel *m_lb_experimentTimes, *m_lb_experimentTimes_value;
+    QSlider *m_slider_experimentTimes;
 
     QPlainTextEdit *m_txtConsole;
 

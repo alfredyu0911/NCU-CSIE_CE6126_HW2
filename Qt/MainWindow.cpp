@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 #include "TrainDataLoader.h"
 #include "GA_ThreadRunner.h"
+#include "RBFN.h"
 
 MainWindow::MainWindow(QWidget *parent):QWidget(parent)
 {
@@ -68,16 +69,16 @@ void MainWindow::allCompoentInit()
     m_sliderGeneration->setValue(1000);
 
     m_sliderPopulation = new QSlider(Qt::Horizontal);
-    m_sliderPopulation->setRange(50, 500);
+    m_sliderPopulation->setRange(100, 500);
     m_sliderPopulation->setValue(500);
 
     m_sliderCrossoverRate = new QSlider(Qt::Horizontal);
     m_sliderCrossoverRate->setRange(0, 100);
-    m_sliderCrossoverRate->setValue(40);
+    m_sliderCrossoverRate->setValue(45);
 
     m_sliderMutationRate = new QSlider(Qt::Horizontal);
     m_sliderMutationRate->setRange(0, 20);
-    m_sliderMutationRate->setValue(10);
+    m_sliderMutationRate->setValue(9);
 
     m_sliderRBFN_hiddenNeural_J = new QSlider(Qt::Horizontal);
     m_sliderRBFN_hiddenNeural_J->setRange(1, 15);
@@ -85,14 +86,14 @@ void MainWindow::allCompoentInit()
 
     m_lb_titleGeneration = new QLabel(QString("繁衍次數"));
     m_lb_titlePopulation = new QLabel(QString("族群數量"));
-    m_lb_titleCrossoverRate = new QLabel(QString("交配機率(%)"));
-    m_lb_titleMutationRate = new QLabel(QString("突變機率(%)"));
+    m_lb_titleCrossoverRate = new QLabel(QString("交配機率"));
+    m_lb_titleMutationRate = new QLabel(QString("突變機率"));
     m_lb_titleRBFN_hiddenNeural_J = new QLabel(QString("J"));
 
     m_lb_valueGeneration = new QLabel(QString::number(m_sliderGeneration->value()));
     m_lb_valuePopulation = new QLabel(QString::number(m_sliderPopulation->value()));
-    m_lb_valueCrossoverRate = new QLabel(QString::number(m_sliderCrossoverRate->value()));
-    m_lb_valueMutationRate = new QLabel(QString::number(m_sliderMutationRate->value()));
+    m_lb_valueCrossoverRate = new QLabel(QString::number(m_sliderCrossoverRate->value())+QString("%"));
+    m_lb_valueMutationRate = new QLabel(QString::number(m_sliderMutationRate->value())+QString("%"));
     m_lb_valueRBFN_hiddenNeural_J = new QLabel(QString::number(m_sliderRBFN_hiddenNeural_J->value()));
 
     m_btn_selectCaseData = new QPushButton(QString("載入Case資料"));
@@ -108,13 +109,19 @@ void MainWindow::allCompoentInit()
     doc->setDefaultFont(font);
     m_txtConsole->setReadOnly(true);
 
-    m_btn_GA_start = new QPushButton(QString("GA Start!!"));
+    m_btn_GA_start = new QPushButton(QString("GA Start once"));
     m_btn_GA_start->setEnabled(false);
     m_progressBar = new QProgressBar();
     m_progressBar->setRange(0, 1000);
     m_progressBar->setValue(0);
 
-    m_btn_experiment = new QPushButton(QString("多次(20)測驗"));
+    m_lb_experimentTimes = new QLabel(QString("實驗次數"));
+    m_slider_experimentTimes = new QSlider(Qt::Horizontal);
+    m_slider_experimentTimes->setRange(10, 100);
+    m_slider_experimentTimes->setValue(20);
+    m_lb_experimentTimes_value = new QLabel(QString::number(m_slider_experimentTimes->value()));
+
+    m_btn_experiment = new QPushButton(QString("進行多次實驗"));
     m_btn_experiment->setEnabled(false);
     m_experimentProgressBar = new QProgressBar();
     m_experimentProgressBar->setRange(0, 1000);
@@ -152,6 +159,10 @@ void MainWindow::addCompoentToContainer()
     m_vAllWidget.push_back(m_btn_GA_start);
     m_vAllWidget.push_back(m_progressBar);
 
+    m_vAllWidget.push_back(m_lb_experimentTimes);
+    m_vAllWidget.push_back(m_slider_experimentTimes);
+    m_vAllWidget.push_back(m_lb_experimentTimes_value);
+
     m_vAllWidget.push_back(m_btn_experiment);
     m_vAllWidget.push_back(m_experimentProgressBar);
 
@@ -169,33 +180,36 @@ void MainWindow::setGridLayout()
     m_layout->addWidget(m_lb_titleCrossoverRate, 2, 0, 1, 1, 0);
     m_layout->addWidget(m_lb_titleMutationRate, 3, 0, 1, 1, 0);
     m_layout->addWidget(m_lb_titleRBFN_hiddenNeural_J, 4, 0, 1, 1, 0);
+    m_layout->addWidget(m_lb_experimentTimes, 5, 0, 1, 1, 0);
 
-    m_layout->addWidget(m_sliderGeneration, 0, 1, 1, 2, 0);
-    m_layout->addWidget(m_sliderPopulation, 1, 1, 1, 2, 0);
-    m_layout->addWidget(m_sliderCrossoverRate, 2, 1, 1, 2, 0);
-    m_layout->addWidget(m_sliderMutationRate, 3, 1, 1, 2, 0);
-    m_layout->addWidget(m_sliderRBFN_hiddenNeural_J, 4, 1, 1, 2, 0);
+    m_layout->addWidget(m_sliderGeneration, 0, 1, 1, 6, 0);
+    m_layout->addWidget(m_sliderPopulation, 1, 1, 1, 6, 0);
+    m_layout->addWidget(m_sliderCrossoverRate, 2, 1, 1, 6, 0);
+    m_layout->addWidget(m_sliderMutationRate, 3, 1, 1, 6, 0);
+    m_layout->addWidget(m_sliderRBFN_hiddenNeural_J, 4, 1, 1, 6, 0);
+    m_layout->addWidget(m_slider_experimentTimes, 5, 1, 1, 6, 0);
 
-    m_layout->addWidget(m_lb_valueGeneration, 0, 3, 1, 1, 0);
-    m_layout->addWidget(m_lb_valuePopulation, 1, 3, 1, 1, 0);
-    m_layout->addWidget(m_lb_valueCrossoverRate, 2, 3, 1, 1, 0);
-    m_layout->addWidget(m_lb_valueMutationRate, 3, 3, 1, 1, 0);
-    m_layout->addWidget(m_lb_valueRBFN_hiddenNeural_J, 4, 3, 1, 1, 0);
+    m_layout->addWidget(m_lb_valueGeneration, 0, 7, 1, 1, 0);
+    m_layout->addWidget(m_lb_valuePopulation, 1, 7, 1, 1, 0);
+    m_layout->addWidget(m_lb_valueCrossoverRate, 2, 7, 1, 1, 0);
+    m_layout->addWidget(m_lb_valueMutationRate, 3, 7, 1, 1, 0);
+    m_layout->addWidget(m_lb_valueRBFN_hiddenNeural_J, 4, 7, 1, 1, 0);
+    m_layout->addWidget(m_lb_experimentTimes_value, 5, 7, 1, 1, 0);
 
-    m_layout->addWidget(m_btn_selectCaseData, 5, 0, 1, 1, 0);
-    m_layout->addWidget(m_btn_selectTrainData, 5, 1, 1, 1, 0);
-    m_layout->addWidget(m_btn_restart, 5, 2, 1, 1, 0);
-    m_layout->addWidget(m_btn_consolClear, 5, 3, 1, 1, 0);
+    m_layout->addWidget(m_btn_selectCaseData, 6, 0, 1, 2, 0);
+    m_layout->addWidget(m_btn_selectTrainData, 6, 2, 1, 2, 0);
+    m_layout->addWidget(m_btn_restart, 6, 4, 1, 2, 0);
+    m_layout->addWidget(m_btn_consolClear, 6, 6, 1, 2, 0);
 
-    m_layout->addWidget(m_btn_GA_start, 6, 0, 1, 1, 0);
-    m_layout->addWidget(m_progressBar, 6, 1, 1, 3, 0);
+    m_layout->addWidget(m_btn_GA_start, 7, 0, 1, 2, 0);
+    m_layout->addWidget(m_progressBar, 7, 2, 1, 6, 0);
 
-    m_layout->addWidget(m_btn_experiment, 7, 0, 1, 1, 0);
-    m_layout->addWidget(m_experimentProgressBar, 7, 1, 1, 3, 0);
+    m_layout->addWidget(m_btn_experiment, 8, 0, 1, 2, 0);
+    m_layout->addWidget(m_experimentProgressBar, 8, 2, 1, 6, 0);
 
-    m_layout->addWidget(m_txtConsole, 8, 0, 4, 4, 0);
+    m_layout->addWidget(m_txtConsole, 9, 0, 3, 8, 0);
 
-    m_layout->addWidget(m_mainCanvasView, 0, 4, 12, 5, 0);
+    m_layout->addWidget(m_mainCanvasView, 0, 8, 12, 10, 0);
 
     setLayout(m_layout);
 }
@@ -207,6 +221,7 @@ void MainWindow::compoentEventInit()
     connect(m_sliderCrossoverRate, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange()));
     connect(m_sliderMutationRate, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange()));
     connect(m_sliderRBFN_hiddenNeural_J, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange()));
+    connect(m_slider_experimentTimes, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange()));
 
     connect(m_btn_selectCaseData, SIGNAL(clicked()), this , SLOT(onBtnClick_CaseDataSelect()));
     connect(m_btn_selectTrainData, SIGNAL(clicked()), this , SLOT(onBtnClick_TrainDataSelect()));
@@ -224,9 +239,11 @@ void MainWindow::onSliderValueChange()
 {
     m_lb_valueGeneration->setText(QString::number(m_sliderGeneration->value()));
     m_lb_valuePopulation->setText(QString::number(m_sliderPopulation->value()));
-    m_lb_valueCrossoverRate->setText(QString::number(m_sliderCrossoverRate->value()));
-    m_lb_valueMutationRate->setText(QString::number(m_sliderMutationRate->value()));
+    m_lb_valueCrossoverRate->setText(QString::number(m_sliderCrossoverRate->value())+QString("%"));
+    m_lb_valueMutationRate->setText(QString::number(m_sliderMutationRate->value())+QString("%"));
     m_lb_valueRBFN_hiddenNeural_J->setText(QString::number(m_sliderRBFN_hiddenNeural_J->value()));
+    m_lb_experimentTimes_value->setText(QString::number(m_slider_experimentTimes->value()));
+    m_nExperimentTime = m_slider_experimentTimes->value();
 }
 
 void MainWindow::onBtnClick_CaseDataSelect()
@@ -317,6 +334,7 @@ void MainWindow::onBtnClick_GA()
     m_sliderMutationRate->setEnabled(false);
     m_sliderPopulation->setEnabled(false);
     m_sliderRBFN_hiddenNeural_J->setEnabled(false);
+    m_slider_experimentTimes->setEnabled(false);
     m_btn_GA_start->setEnabled(false);
     m_btn_experiment->setEnabled(false);
     m_btn_restart->setEnabled(false);
@@ -339,7 +357,7 @@ void MainWindow::onBtnClick_ConsoleClear()
 void MainWindow::onBtnClick_Experiment()
 {
     m_timer_experiment->start(100);
-    m_experimentProgressBar->setMaximum(m_sliderGeneration->value()*20);
+    m_experimentProgressBar->setMaximum(m_sliderGeneration->value()*m_nExperimentTime);
     m_experimentProgressBar->setValue(0);
 
     if ( m_GA_experimentRunner == NULL )
@@ -350,6 +368,7 @@ void MainWindow::onBtnClick_Experiment()
         connect(m_GA_experimentRunner, SIGNAL(multipleRunner_didFinish()), this, SLOT(GA_ExperimentDidFinish()));
     }
 
+    m_GA_experimentRunner->setExperimentTime(m_nExperimentTime);
     m_GA_experimentRunner->input_GA_parameter(m_sliderRBFN_hiddenNeural_J->value(), m_data->m_vTrainData);
     m_GA_experimentRunner->update_GA_setting(m_sliderPopulation->value(), m_sliderCrossoverRate->value(), \
                                              m_sliderMutationRate->value(), m_sliderGeneration->value());
@@ -361,6 +380,7 @@ void MainWindow::onBtnClick_Experiment()
     m_sliderMutationRate->setEnabled(false);
     m_sliderPopulation->setEnabled(false);
     m_sliderRBFN_hiddenNeural_J->setEnabled(false);
+    m_slider_experimentTimes->setEnabled(false);
     m_btn_GA_start->setEnabled(false);
     m_btn_experiment->setEnabled(false);
     m_btn_restart->setEnabled(false);
@@ -441,6 +461,7 @@ void MainWindow::GA_DidFinish()
     m_sliderMutationRate->setEnabled(true);
     m_sliderPopulation->setEnabled(true);
     m_sliderRBFN_hiddenNeural_J->setEnabled(true);
+    m_slider_experimentTimes->setEnabled(true);
     m_btn_restart->setEnabled(true);
 
     delete m_GA_runner;
@@ -457,6 +478,7 @@ void MainWindow::GA_DidFail()
     m_sliderMutationRate->setEnabled(true);
     m_sliderPopulation->setEnabled(true);
     m_sliderRBFN_hiddenNeural_J->setEnabled(true);
+    m_slider_experimentTimes->setEnabled(true);
     m_btn_GA_start->setEnabled(true);
     m_btn_experiment->setEnabled(true);
     m_btn_restart->setEnabled(true);
@@ -473,38 +495,44 @@ void MainWindow::GA_ExperimentDidFinish()
     m_experimentProgressBar->setValue(m_experimentProgressBar->maximum());
 
     consoleAddMsg(QString("Genetic Algorithm Experiment did finish running"));
-    consoleAddMsg(QString("=============以下為基因演算法運行 20 次的輸出結果============="));
-    consoleAddMsg(QString("[Best fitness], [Average Error]"));
+    consoleAddMsg(QString("=============以下為基因演算法運行 ") + QString::number(m_nExperimentTime) + QString(" 次的輸出結果============="));
+    consoleAddMsg(QString("實驗參數 [") + QString::number(m_sliderGeneration->value()) + QString(", ") + \
+                                         QString::number(m_sliderPopulation->value()) + QString(", ") + \
+                                         QString::number(m_sliderCrossoverRate->value()) + QString(", ") + \
+                                         QString::number(m_sliderMutationRate->value()) + QString(", ") + \
+                                         QString::number(m_sliderRBFN_hiddenNeural_J->value()) + QString("]"));
+    consoleAddMsg(QString("[Best fitness], [Average Error], [是否成功通過軌道]"));
 
     vector<float> vAvgError = m_GA_experimentRunner->getAllBestAverageError();
     vector<float> vBestFit = m_GA_experimentRunner->getAllBestFitnessValue();
-    for ( int i=0 ; i < 20 ; i++ )
+    for ( int i=0 ; i < m_nExperimentTime ; i++ )
     {
         QString msg = QString("");
-        QString err, fit;
+        QString err, fit, pass;
         err.sprintf("%10.7f  ", vAvgError[i]);
         fit.sprintf("%10.7f   ", vBestFit[i]);
+        pass = experimentCheckIsCarSuccessfullyPassTrack(i) ? QString("Yes") : QString("No ");
         msg += QString("[") + fit + QString("], ");
-        msg += QString("[") + err + QString("]");
+        msg += QString("[") + err + QString("], ");
+        msg += QString("[") + pass + QString("]");
         consoleAddMsg(msg);
     }
 
     int time = m_GA_experimentRunner->checkExecuteTime();
     QString ss, mm, hh, ss2, mm2, hh2;
     convertTime(time, hh, mm, ss);
-    convertTime(time/20, hh2, mm2, ss2);
+    convertTime(time/m_nExperimentTime, hh2, mm2, ss2);
 
-    consoleAddMsg(QString("總執行時間: ") + hh + QString("小時 ") + mm + QString("分") + ss + QString("秒"));
+    consoleAddMsg(QString("全部執行時間: ") + hh + QString("小時 ") + mm + QString("分 ") + ss + QString("秒"));
     consoleAddMsg(QString("平均執行時間: ") + hh2 + QString("小時 ") + mm2 + QString("分 ") + ss2 + QString("秒"));
-    consoleAddMsg(QString("=============以上為基因演算法運行 20 次的輸出結果============="));
+    consoleAddMsg(QString("=============以上為基因演算法運行 ") + QString::number(m_nExperimentTime) + QString(" 次的輸出結果============="));
 
     m_sliderCrossoverRate->setEnabled(true);
     m_sliderGeneration->setEnabled(true);
     m_sliderMutationRate->setEnabled(true);
     m_sliderPopulation->setEnabled(true);
     m_sliderRBFN_hiddenNeural_J->setEnabled(true);
-    m_btn_GA_start->setEnabled(true);
-    m_btn_experiment->setEnabled(true);
+    m_slider_experimentTimes->setEnabled(true);
     m_btn_restart->setEnabled(true);
 
     delete m_GA_experimentRunner;
@@ -521,6 +549,7 @@ void MainWindow::GA_ExperimentDidFail()
     m_sliderMutationRate->setEnabled(true);
     m_sliderPopulation->setEnabled(true);
     m_sliderRBFN_hiddenNeural_J->setEnabled(true);
+    m_slider_experimentTimes->setEnabled(true);
     m_btn_GA_start->setEnabled(true);
     m_btn_experiment->setEnabled(true);
     m_btn_restart->setEnabled(true);
@@ -563,6 +592,57 @@ void MainWindow::carMoveOnce(CarObject *car, float &lastWheelAngle)
 
     Record rec = Record(m_data->m_carPosition, L, R, F, m_data->m_carWheelAngle.getDegree());
     m_data->addCarNewRecord(rec);
+}
+
+bool MainWindow::experimentCheckIsCarSuccessfullyPassTrack(int i)
+{
+    Geometry geoObj;
+    CarObject *car = new CarObject(m_data);
+    m_data->m_carAngle = m_init->getCarInitAngle();
+    m_data->m_carPosition = m_init->getCarInitCoordinate();
+    TrainDataType type = m_data->m_vTrainData[m_data->m_vTrainData.size()-1].dataType;
+
+    while ( true )
+    {
+        m_data->m_intersectPt_L = m_data->nextIntersectionPoint(m_data->m_carAngle.getDegree() + 45.0);
+        m_data->m_intersectPt_R = m_data->nextIntersectionPoint(m_data->m_carAngle.getDegree() - 45.0);
+        m_data->m_intersectPt_F = m_data->nextIntersectionPoint(m_data->m_carAngle.getDegree());
+
+        float F = geoObj.getDistance(m_data->m_carPosition, m_data->m_intersectPt_F);
+        float R = geoObj.getDistance(m_data->m_carPosition, m_data->m_intersectPt_R);
+        float L = geoObj.getDistance(m_data->m_carPosition, m_data->m_intersectPt_L);
+
+        RBFN *network = new RBFN(m_GA_experimentRunner->getAllBestResults()[i]);
+
+        InputVector input(type);
+        int idx=0;
+        if ( type == TrainDataType_6D )
+        {
+            input.aryElement[idx++] = (m_data->m_carPosition.x-30.0) / 40.0;
+            input.aryElement[idx++] = (m_data->m_carPosition.y-30.0) / 40.0;
+        }
+        input.aryElement[idx++] = (F-40.0) / 40.0;
+        input.aryElement[idx++] = (R-40.0) / 40.0;
+        input.aryElement[idx++] = (L-40.0) / 40.0;
+
+        float angle = network->getResultByInputVector(input) * 40.0;
+        delete network;
+        (angle > 0) ? m_data->carTurnRight(angle) : m_data->carTurnLeft(angle);
+        car->move();
+
+        if ( car->collisionCheck() == true )
+        {
+            delete car;
+            return false;
+        }
+        else if ( isCarReachEndZone() == true )
+        {
+            break;
+        }
+    }
+
+    delete car;
+    return true;
 }
 
 void MainWindow::dataInit()

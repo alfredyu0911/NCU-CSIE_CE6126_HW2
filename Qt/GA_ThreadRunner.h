@@ -51,6 +51,9 @@ public:
 
     vector<float> getAllBestFitnessValue() { return m_vBestFitnessValue; }
     vector<float> getAllBestAverageError() { return m_vBestAverageError; }
+    vector<Particule> getAllBestResults()  { return m_vBestResult; }
+
+    void setExperimentTime(int n) { m_nExperimentTime = n; }
 
     int checkProgress();
     int checkExecuteTime() { return m_nExecuteTime; }
@@ -58,7 +61,8 @@ public:
 protected:
     vector<float> m_vBestFitnessValue;
     vector<float> m_vBestAverageError;
-    int m_nProgress, m_nGeneration, m_nExecuteTime;
+    vector<Particule> m_vBestResult;
+    int m_nProgress, m_nGeneration, m_nExecuteTime, m_nExperimentTime;
 
 signals:
     void multipleRunner_didStart();

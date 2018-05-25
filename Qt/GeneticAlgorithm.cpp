@@ -376,3 +376,9 @@ float GeneticAlgorithm::angleDenormalize(float angle)
     // -1~1  ->  -40~40
     return angle * 40.0;
 }
+
+Particule GeneticAlgorithm::getBestResult()
+{
+    sort(m_vParticules.begin(), m_vParticules.end(), sort_compare);
+    return m_vParticules[0];
+}

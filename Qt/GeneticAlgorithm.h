@@ -23,6 +23,7 @@ public:
     float getBestFitnessValue();
     float getBsetAverageError();
     float getAngleByInputToRBFN(float disF, float disR, float disL, float x=0, float y=0);
+    Particule getBestResult();
 
     // 外部檢查.
     int checkProgress() { return m_nProgress/* * 100 / m_nGeneration*/; }

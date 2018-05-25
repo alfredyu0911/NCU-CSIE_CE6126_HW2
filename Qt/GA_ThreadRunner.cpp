@@ -87,7 +87,7 @@ void GA_ThreadMultipleRunner::doRun()
 
     emit multipleRunner_didStart();
 
-    for ( m_nProgress=0 ; m_nProgress < 20 ; m_nProgress++ )
+    for ( m_nProgress=0 ; m_nProgress < m_nExperimentTime ; m_nProgress++ )
     {
         if ( false == m_GA->GA_strat() )
         {
@@ -98,6 +98,7 @@ void GA_ThreadMultipleRunner::doRun()
         {
             m_vBestFitnessValue.push_back(m_GA->getBestFitnessValue());
             m_vBestAverageError.push_back(m_GA->getBsetAverageError());
+            m_vBestResult.push_back(m_GA->getBestResult());
         }
     }
     m_nExecuteTime = qtime.elapsed();
