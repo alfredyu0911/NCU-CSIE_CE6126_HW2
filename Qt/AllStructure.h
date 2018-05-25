@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <vector>
+#include <cstdlib>
 
 #include "AllEnumerate.h"
 #include "AllConstant.hpp"
