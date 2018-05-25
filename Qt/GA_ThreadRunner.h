@@ -21,6 +21,7 @@ public:
     float getAngle(float disF, float disR, float disL, float x=0, float y=0);
     float getBestFitnessValue();
     float getBsetAverageError();
+    vector<Particule> getAllBestResults()  { return m_vBestResult; }
 
     int checkProgress();
     int checkExecuteTime();
@@ -28,6 +29,7 @@ public:
 protected:
     GeneticAlgorithm *m_GA;
     QTimer *m_timer;
+    vector<Particule> m_vBestResult;
 
     void initRunner();
 

@@ -13,6 +13,7 @@ void GA_ThreadRunner::doRun()
     emit runner_didStart();
     if ( m_GA->GA_strat() )
     {
+        m_vBestResult.push_back(m_GA->getBestResult());
         emit runner_didFinish();
     }
     else
